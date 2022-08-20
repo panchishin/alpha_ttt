@@ -11,7 +11,6 @@ winning_player_board = (
 
 legal_positions = list([1<<i for i in range(9)])
 
-
 class MiniBoard:
 	__slots__ = ['pos']
 
@@ -68,7 +67,29 @@ class MiniBoard:
 					print(" ", end="")
 				
 			print()
-		print()
+
+	def to_one_hot(self):
+		"""
+		Converts the positions for each player into a 1hot encoding for the NN
+		the encoding is 0=empty, 1=player0, 2=player1
+		"""
+		encoded = np.ones([9], dtype=np.int16) * 2
+		for index in range(9):
+			pos = 1<<index
+			if pos == pos & self.pos[0]:
+				encoded[index] = 0
+			elif pos == pos & self.pos[1]:
+				encoded[index] = 1
+		return encoded
+
+	def from_one_hot(self, one_hot):
+		self.pos = [0,0]
+		for index in range(9):
+			pos = 1<<index
+			if one_hot[index] == 0:
+				self.pos[0] = self.pos[0] | pos
+			if one_hot[index] == 1:
+				self.pos[1] = self.pos[1] | pos
 
 
 def random_ai(mini_board, player):
@@ -134,6 +155,9 @@ def fair_battle(ai_a, ai_b, scores):
 	scores = scores + battle(ai_b, ai_a, verbose=False)[::-1]
 	return scores
 
+battle(random_ai, montecarlo_ai)
+
+
 print("\n--- BATTLES ---")
 print("Random vs winning_move_ai")
 for _ in range(10):
@@ -149,3 +173,4 @@ for _ in range(10):
 	for _ in range(5):
 		scores = fair_battle(montecarlo_ai, winning_move_ai, scores)
 	print("Score is ", scores, "out of 10")
+
