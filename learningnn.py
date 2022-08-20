@@ -68,7 +68,7 @@ class MiniBoard:
 				
 			print()
 
-	def to_one_hot(self):
+	def to_sparse(self):
 		"""
 		Converts the positions for each player into a 1hot encoding for the NN
 		the encoding is 0=empty, 1=player0, 2=player1
@@ -82,13 +82,13 @@ class MiniBoard:
 				encoded[index] = 1
 		return encoded
 
-	def from_one_hot(self, one_hot):
+	def from_sparse(self, sparse):
 		self.pos = [0,0]
 		for index in range(9):
 			pos = 1<<index
-			if one_hot[index] == 0:
+			if sparse[index] == 0:
 				self.pos[0] = self.pos[0] | pos
-			if one_hot[index] == 1:
+			if sparse[index] == 1:
 				self.pos[1] = self.pos[1] | pos
 
 
@@ -112,7 +112,7 @@ def winning_move_ai(mini_board, player):
 			candidate.append(pos)
 	return choice(candidate)
 
-def montecarlo_ai(mini_board, player, iterations=50):
+def montecarlo_ai(mini_board, player, iterations=200):
 	avail = ( 0b111111111 ^ ( mini_board.pos[0] | mini_board.pos[1] ) )
 	scores = [0,0,0,0,0,0,0,0,0]
 	for index in range(9):
@@ -159,18 +159,34 @@ battle(random_ai, montecarlo_ai)
 
 
 print("\n--- BATTLES ---")
-print("Random vs winning_move_ai")
-for _ in range(10):
-	scores = np.zeros([2], dtype=np.int16)
-	for _ in range(5):
-		scores = fair_battle(random_ai, winning_move_ai, scores)
-	print("Score is ", scores, "out of 10")
+print("random_ai vs random_ai")
+scores = np.zeros([2], dtype=np.int16)
+for trial in range(1,11):
+	for _ in range(50):
+		scores = fair_battle(random_ai, random_ai, scores)
+	print("Score is ", scores, "out of", trial*100)
 
 print("\n--- BATTLES ---")
-print("Montecarlo vs winning_move_ai")
-for _ in range(10):
-	scores = np.zeros([2], dtype=np.int16)
+print("rando_ai vs winning_move_ai")
+scores = np.zeros([2], dtype=np.int16)
+for trial in range(1,11):
+	for _ in range(50):
+		scores = fair_battle(random_ai, winning_move_ai, scores)
+	print("Score is ", scores, "out of", trial*100)
+
+print("\n--- BATTLES ---")
+print("winning_move_ai vs random_ai")
+scores = np.zeros([2], dtype=np.int16)
+for trial in range(1,11):
+	for _ in range(50):
+		scores = fair_battle(winning_move_ai, random_ai, scores)
+	print("Score is ", scores, "out of", trial*100)
+
+print("\n--- BATTLES ---")
+print("montecarlo_ai vs winning_move_ai")
+scores = np.zeros([2], dtype=np.int16)
+for trial in range(1,11):
 	for _ in range(5):
 		scores = fair_battle(montecarlo_ai, winning_move_ai, scores)
-	print("Score is ", scores, "out of 10")
+	print("Score is ", scores, "out of", trial*10)
 
