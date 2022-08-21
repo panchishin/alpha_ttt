@@ -1,13 +1,17 @@
 # Basic 3x3 tic tac toe
+
+# suppress tensorflow info and warning
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+
 from random import shuffle, choice
 from tabnanny import verbose
 from time import time
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from multiprocessing import Pool, freeze_support
 
-# CHANGE LOG
-# use exponential decay for reward function
 
 train_games = 2000
 eval_games = 200
@@ -155,23 +159,39 @@ class NN:
 	def load(self, name):
 		self.model = models.load_model(name)
 
-	def self_play(self, games=1):
-		sparse_boards = []
-		logits = []
-		pos_list = []
 
-		if games > 1:
-			for game in range(1,games+1):
+	def self_play(self, games=1):
+
+		if games > 100:
+			sparse_boards = []
+			logits = []
+			print("Games completed", end="")
+			with Pool(5) as p:
+				for game in range(0,games,500):
+					boards_logits = p.map(self.self_play, [100,100,100,100,100])
+					for s,l in boards_logits:
+						sparse_boards.extend(s)
+						logits.extend(l)
+					print(" ",game+500,end="", flush=True)
+			return sparse_boards, logits
+
+		elif games > 1:
+			sparse_boards = []
+			logits = []
+			for game in range(games):
 				s, l = self.self_play()
 				sparse_boards.extend(s)
 				logits.extend(l)
-				if game%5 == 0:
-					print(".",end="", flush=True)
-				if game%500 == 0:
-					print(" -",game,"games", flush=True)
-			return np.array(sparse_boards), np.array(logits)
+			return sparse_boards, logits
 
+		else:
+			return self.self_play_one_game()
+
+	def self_play_one_game(self):
 		mini_board = MiniBoard()
+		sparse_boards = []
+		logits = []
+		pos_list = []
 
 		for turn in range(9):
 			player = turn % 2
@@ -279,10 +299,13 @@ print("\nUntrained NN baseline")
 report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
 report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
 
-for training_session in range(1,21):
-	print(f"Self play {train_games} games, training session", training_session)
-	sparse_boards, logits = nn.self_play(train_games)
-	nn.train(sparse_boards=sparse_boards, target_logits=logits)
-	# nn.save(name=f"saves/nn_{training_session}")
-	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
-	report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
+if __name__ == '__main__':
+	freeze_support()
+
+	for training_session in range(1):
+		print(f"Self play {train_games} games, training session", training_session)
+		sparse_boards, logits = nn.self_play(train_games)
+		nn.train(sparse_boards=np.array(sparse_boards), target_logits=np.array(logits))
+		# nn.save(name=f"saves/nn_{training_session}")
+		report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
+		report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
