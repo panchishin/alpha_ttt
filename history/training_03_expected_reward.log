@@ -1,0 +1,122 @@
+Fair battle : nn.ai vs random_ai Score is [ 67 104] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [91 85] out of 200
+Self play 2000 games, training session 1
+473/473 [==============================] - 1s 1ms/step - loss: 0.0041
+47275/47275 [==============================] - 57s 1ms/step - loss: 0.0027
+473/473 [==============================] - 0s 747us/step - loss: 0.0025
+Fair battle : nn.ai vs random_ai Score is [81 86] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [93 71] out of 200
+Self play 2000 games, training session 2
+480/480 [==============================] - 1s 1ms/step - loss: 0.0033
+47932/47932 [==============================] - 57s 1ms/step - loss: 0.0024
+480/480 [==============================] - 0s 759us/step - loss: 0.0023
+Fair battle : nn.ai vs random_ai Score is [82 68] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [92 79] out of 200
+Self play 2000 games, training session 3
+486/486 [==============================] - 1s 1ms/step - loss: 0.0027
+48507/48507 [==============================] - 59s 1ms/step - loss: 0.0020 
+486/486 [==============================] - 0s 735us/step - loss: 0.0018
+Fair battle : nn.ai vs random_ai Score is [94 70] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [118  55] out of 200
+Self play 2000 games, training session 4
+486/486 [==============================] - 1s 1ms/step - loss: 0.0023
+48585/48585 [==============================] - 59s 1ms/step - loss: 0.0016
+486/486 [==============================] - 0s 717us/step - loss: 0.0016
+Fair battle : nn.ai vs random_ai Score is [88 73] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [112  43] out of 200
+Self play 2000 games, training session 5
+491/491 [==============================] - 0s 880us/step - loss: 0.0019
+49004/49004 [==============================] - 52s 1ms/step - loss: 0.0014
+491/491 [==============================] - 0s 654us/step - loss: 0.0013
+Fair battle : nn.ai vs random_ai Score is [94 58] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [113  50] out of 200
+Self play 2000 games, training session 6
+492/492 [==============================] - 0s 832us/step - loss: 0.0016
+49160/49160 [==============================] - 51s 1ms/step - loss: 0.0013
+492/492 [==============================] - 0s 636us/step - loss: 0.0012
+Fair battle : nn.ai vs random_ai Score is [95 64] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [119  48] out of 200
+Self play 2000 games, training session 7
+492/492 [==============================] - 0s 832us/step - loss: 0.0015
+49116/49116 [==============================] - 51s 1ms/step - loss: 0.0012
+492/492 [==============================] - 0s 667us/step - loss: 0.0011
+Fair battle : nn.ai vs random_ai Score is [100  59] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [122  53] out of 200
+Self play 2000 games, training session 8
+495/495 [==============================] - 0s 868us/step - loss: 0.0014
+49432/49432 [==============================] - 52s 1ms/step - loss: 0.0011
+495/495 [==============================] - 0s 656us/step - loss: 0.0010
+Fair battle : nn.ai vs random_ai Score is [99 60] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [124  48] out of 200
+Self play 2000 games, training session 9
+500/500 [==============================] - 0s 869us/step - loss: 0.0013
+49904/49904 [==============================] - 52s 1ms/step - loss: 9.9634e-04
+500/500 [==============================] - 0s 667us/step - loss: 9.4517e-04
+Fair battle : nn.ai vs random_ai Score is [111  46] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [125  40] out of 200
+Self play 2000 games, training session 10
+501/501 [==============================] - 0s 823us/step - loss: 0.0011
+50013/50013 [==============================] - 52s 1ms/step - loss: 8.5461e-04
+501/501 [==============================] - 0s 686us/step - loss: 7.9732e-04
+Fair battle : nn.ai vs random_ai Score is [101  63] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [128  36] out of 200
+Self play 2000 games, training session 11
+503/503 [==============================] - 0s 845us/step - loss: 0.0010
+50282/50282 [==============================] - 52s 1ms/step - loss: 8.3593e-04
+503/503 [==============================] - 0s 663us/step - loss: 7.9455e-04
+Fair battle : nn.ai vs random_ai Score is [117  49] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [127  48] out of 200
+Self play 2000 games, training session 12
+508/508 [==============================] - 0s 875us/step - loss: 8.8935e-04
+50750/50750 [==============================] - 54s 1ms/step - loss: 7.4504e-04
+508/508 [==============================] - 0s 643us/step - loss: 7.1007e-04
+Fair battle : nn.ai vs random_ai Score is [116  42] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [130  48] out of 200
+Self play 2000 games, training session 13
+508/508 [==============================] - 0s 827us/step - loss: 7.8905e-04
+50794/50794 [==============================] - 52s 1ms/step - loss: 6.7965e-04
+508/508 [==============================] - 0s 641us/step - loss: 6.5182e-04
+Fair battle : nn.ai vs random_ai Score is [118  48] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [117  53] out of 200
+Self play 2000 games, training session 14
+510/510 [==============================] - 0s 860us/step - loss: 7.6422e-04
+50932/50932 [==============================] - 53s 1ms/step - loss: 6.5436e-04
+510/510 [==============================] - 0s 711us/step - loss: 6.0132e-04
+Fair battle : nn.ai vs random_ai Score is [109  44] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [122  47] out of 200
+Self play 2000 games, training session 15
+508/508 [==============================] - 0s 897us/step - loss: 7.0187e-04
+50794/50794 [==============================] - 54s 1ms/step - loss: 6.0953e-04
+508/508 [==============================] - 0s 652us/step - loss: 5.6272e-04
+Fair battle : nn.ai vs random_ai Score is [106  52] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [127  45] out of 200
+Self play 2000 games, training session 16
+514/514 [==============================] - 0s 816us/step - loss: 6.0445e-04
+51313/51313 [==============================] - 54s 1ms/step - loss: 5.3154e-04
+514/514 [==============================] - 0s 654us/step - loss: 5.1520e-04
+Fair battle : nn.ai vs random_ai Score is [103  50] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [115  48] out of 200
+Self play 2000 games, training session 17
+518/518 [==============================] - 0s 915us/step - loss: 5.3159e-04
+51722/51722 [==============================] - 55s 1ms/step - loss: 4.8041e-04
+518/518 [==============================] - 0s 646us/step - loss: 4.3039e-04
+Fair battle : nn.ai vs random_ai Score is [120  45] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [120  54] out of 200
+Self play 2000 games, training session 18
+519/519 [==============================] - 1s 949us/step - loss: 4.9359e-04
+51866/51866 [==============================] - 55s 1ms/step - loss: 4.6256e-04
+519/519 [==============================] - 0s 650us/step - loss: 4.6355e-04
+Fair battle : nn.ai vs random_ai Score is [113  50] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [127  45] out of 200
+Self play 2000 games, training session 19
+521/521 [==============================] - 0s 862us/step - loss: 5.0029e-04
+52063/52063 [==============================] - 55s 1ms/step - loss: 4.6404e-04
+521/521 [==============================] - 0s 649us/step - loss: 4.6080e-04
+Fair battle : nn.ai vs random_ai Score is [108  39] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [133  39] out of 200
+Self play 2000 games, training session 20
+526/526 [==============================] - 0s 791us/step - loss: 4.1123e-04
+52529/52529 [==============================] - 54s 1ms/step - loss: 3.8188e-04
+526/526 [==============================] - 0s 651us/step - loss: 3.7878e-04
+Fair battle : nn.ai vs random_ai Score is [114  52] out of 200
+Fair battle : nn.ai vs nn_old.ai Score is [127  45] out of 200

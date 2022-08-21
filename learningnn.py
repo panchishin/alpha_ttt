@@ -147,11 +147,11 @@ class NN:
 				layers.Flatten(),
 				layers.Dense(200, activation="relu"),
 				layers.Dense(50, activation="relu"),
-				layers.Dense(9, activation="softmax")
+				layers.Dense(9, activation="tanh")
 			))
 		else:
 			self.model = models.clone_model(other.model)
-		self.model.compile(loss="mae", optimizer="adam")
+		self.model.compile(loss="mse", optimizer="adam")
 
 	def save(self, name):
 		self.model.save(name)
@@ -165,14 +165,17 @@ class NN:
 		if games > 100:
 			sparse_boards = []
 			logits = []
-			print("Games completed", end="")
-			with Pool(5) as p:
-				for game in range(0,games,500):
-					boards_logits = p.map(self.self_play, [100,100,100,100,100])
-					for s,l in boards_logits:
-						sparse_boards.extend(s)
-						logits.extend(l)
-					print(" ",game+500,end="", flush=True)
+			print(" [progress]", end="")
+			p = Pool(5)
+			# with pool as p:
+			for game in range(0,games,500):
+				boards_logits = p.map(self.self_play, [100,100,100,100,100])
+				for s,l in boards_logits:
+					sparse_boards.extend(s)
+					logits.extend(l)
+				print(" ",game+500,end="", flush=True)
+			p.close()
+			p.join()
 			return sparse_boards, logits
 
 		elif games > 1:
@@ -206,13 +209,17 @@ class NN:
 				mini_board.print()
 			if mini_board.is_win(player=player) :
 				for move in range(turn):
-					learning_rate = 0.5**(turn-move) if move%2==player else -(0.5**(turn-move))
+					learning_rate = 0.5**(turn-move)
+					value = 1 if move%2==player else -1
 					index = pos_list[move].bit_length() - 1
-					logits[move][index] += learning_rate
-					if np.min(logits[move]) < 0:
-						logits[move] = logits[move] - np.min(logits[move])
-					logits[move] = logits[move] / np.sum(logits[move])
-				break
+					logits[move][index] = learning_rate * value + (1-learning_rate) * logits[move][index]
+				return sparse_boards, logits
+
+		for move in range(9):
+			learning_rate = 0.5**(8-move)
+			value = 0
+			index = pos_list[move].bit_length() - 1
+			logits[move][index] = learning_rate * value + (1-learning_rate) * logits[move][index]
 
 		return sparse_boards, logits
 
@@ -240,9 +247,10 @@ class NN:
 		for index in range(9):
 			pos = 1 << index
 			if pos != avail & pos:
-				predict[index] = 0
+				predict[index] = -1.0001 # just a little lower than tanh can output
 
-		predict = predict * predict
+		predict = predict - min(predict)
+		predict = predict**8
 		predict = predict / sum(predict)
 		pos = 1 << int(np.random.choice(range(9),p=predict))
 
@@ -290,22 +298,23 @@ def report_fair_battle(ai_names, ai_funcs, trials, iterations):
 		print("Fair battle :", ai_names[0], "vs", ai_names[1], "Score is", scores, "out of", trial*iterations*2)
 
 
-nn = NN()
-nn.save(name=f"saves/nn_0")
-# nn.load(name=f"saves/nn_3")
-nn_old = NN(nn)
-# nn_old.load(name=f"saves/nn_0")
-print("\nUntrained NN baseline")
-report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
-report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
 
 if __name__ == '__main__':
 	freeze_support()
 
-	for training_session in range(1):
+	nn = NN()
+	nn.save(name=f"saves/nn_0")
+	# nn.load(name=f"saves/nn_3")
+	nn_old = NN(nn)
+	# nn_old.load(name=f"saves/nn_0")
+	print("\nUntrained NN baseline")
+	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
+	report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
+
+	for training_session in range(1,21):
 		print(f"Self play {train_games} games, training session", training_session)
 		sparse_boards, logits = nn.self_play(train_games)
 		nn.train(sparse_boards=np.array(sparse_boards), target_logits=np.array(logits))
-		# nn.save(name=f"saves/nn_{training_session}")
+		nn.save(name=f"saves/nn_{training_session}")
 		report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
 		report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
