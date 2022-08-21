@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
+
 winning_player_board = (
 	0b111000000, 0b000111000, 0b000000111,
 	0b100100100, 0b010010010, 0b001001001,
@@ -138,8 +139,63 @@ class NN:
 			))
 		else:
 			self.model = models.clone_model(other.model)
+		self.model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001))
 
-	def ai(self, mini_board, player):
+	def save(self, name):
+		self.model.save(name)
+	
+	def load(self, name):
+		self.model = models.load_model(name)
+
+	def self_play(self, games=1):
+		sparse_boards = []
+		logits = []
+		pos_list = []
+
+		if games > 1:
+			for game in range(1,games+1):
+				s, l = self.self_play()
+				sparse_boards.extend(s)
+				logits.extend(l)
+				if game%2 == 0:
+					print(".",end="", flush=True)
+				if game%100 == 0:
+					print(" -",game,"games", flush=True)
+			return np.array(sparse_boards), np.array(logits)
+
+		# append iterations of results to sparse_boards and target_logits
+
+		mini_board = MiniBoard()
+
+		for turn in range(9):
+			player = turn % 2
+			sparse_board, logit, pos = self.ai(mini_board=mini_board, player=player, report_logits=True)
+
+			sparse_boards.append(sparse_board[0].tolist())
+			logits.append(logit[0].tolist())
+			pos_list.append(pos)
+
+			mini_board.move(pos=pos, player=player)
+			if verbose:
+				mini_board.print()
+			if mini_board.is_win(player=player) :
+				# adjust the logits and break
+				for move in range(turn):
+					learning_rate = 10*( move+1 if move%2==player else -(move+1) )
+					index = pos_list[move].bit_length() - 1
+					logits[move][index] += learning_rate
+				break
+
+		return sparse_boards, logits
+
+	def train(self, sparse_boards, target_logits):
+		x = tf.one_hot(sparse_boards,depth=3)
+		y = target_logits
+		# dataset = tf.data.Dataset.from_tensor_slices((x, y)).repeat(100).shuffle(1000).batch(32)
+		# self.model.fit(dataset)
+		self.model.fit(x,y)
+
+	def ai(self, mini_board, player, report_logits=False):
 		# always convert board to be from player 0's point of view
 		if player == 0:
 			mini_board_pos = mini_board.pos
@@ -147,15 +203,22 @@ class NN:
 			mini_board_pos = mini_board.pos[::-1]
 
 		sparse_board = to_sparse(mini_board_pos=mini_board_pos)
-		result = self.model.predict(tf.one_hot(sparse_board,depth=3), verbose=0)
+		predict = self.model.predict(tf.one_hot(sparse_board,depth=3), verbose=0)
+		if report_logits:
+			logits = np.array(predict)
 
 		avail = ( 0b111111111 ^ ( mini_board.pos[0] | mini_board.pos[1] ) )
 		for index in range(9):
 			pos = 1 << index
 			if pos != avail & pos:
-				result[0,index] = -1e38 # min float
+				predict[0,index] = -1e38 # min float
 
-		return 1 << int(tf.random.categorical(result,1).numpy()[0,0])
+		if report_logits:
+			return sparse_board, logits , 1 << int(tf.random.categorical(predict,1).numpy()[0,0])
+		else:
+			return 1 << int(tf.random.categorical(predict,1).numpy()[0,0])
+
+
 
 
 def battle(ai_a, ai_b, verbose=True):
@@ -185,85 +248,34 @@ def fair_battle(ai_a, ai_b, scores):
 	scores = scores + battle(ai_b, ai_a, verbose=False)[::-1]
 	return scores
 
+def report_fair_battle(ai_names, ai_funcs, trials, iterations):
+	iterations = iterations // 2
+	print("\n--- BATTLES ---")
+	print(ai_names[0], "vs", ai_names[1])
+	scores = np.zeros([2], dtype=np.int16)
+	for trial in range(1,trials+1):
+		for _ in range(iterations):
+			scores = fair_battle(ai_funcs[0], ai_funcs[1], scores)
+		print("Score is ", scores, "out of", trial*iterations*2)
+
+
 nn = NN()
-print("\n--- BATTLES ---")
-print("monte_carlo_ai vs nn_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(MonteCarlo().ai, nn.ai, scores)
-	print("Score is ", scores, "out of", trial*10)
+print("\nUntrained NN baseline")
+report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 100)
+report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 1, 100)
+# report_fair_battle(["nn.ai","MonteCarlo(50).ai"], [nn.ai, MonteCarlo(50).ai], 1, 100)
 
-for _ in range(5):
-	print("Monto Carlo vs NN")
-	print("Result is",battle(MonteCarlo().ai,nn.ai))
-	print("NN vs Monto Carlo")
-	print("Result is",battle(nn.ai,MonteCarlo().ai))
+# nn.load(name="nn")
+# print("\nLoaded NN baseline")
+# report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 100, 1)
+# report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 100, 1)
 
+for training_session in range(10):
+	print("\nSelf play 100 games")
+	sparse_boards, logits = nn.self_play(100)
+	nn.train(sparse_boards=sparse_boards, target_logits=logits)
+	nn.save(name=f"saves/nn_{training_session}")
+	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 100)
+	report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 1, 100)
+	# report_fair_battle(["nn.ai","MonteCarlo(50).ai"], [nn.ai, MonteCarlo(50).ai], 1, 100)
 
-
-print("\n--- BATTLES ---")
-print("random_ai vs random_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(50):
-		scores = fair_battle(random_ai, random_ai, scores)
-	print("Score is ", scores, "out of", trial*100)
-
-print("\n--- BATTLES ---")
-print("rando_ai vs winning_move_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(50):
-		scores = fair_battle(random_ai, winning_move_ai, scores)
-	print("Score is ", scores, "out of", trial*100)
-
-print("\n--- BATTLES ---")
-print("nn_ai vs random_ai")
-scores = np.zeros([2], dtype=np.int16)
-nn = NN()
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(nn.ai, random_ai, scores)
-	print("Score is ", scores, "out of", trial*10)
-
-print("\n--- BATTLES ---")
-print("nn_ai vs winning_move_ai")
-scores = np.zeros([2], dtype=np.int16)
-nn = NN()
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(nn.ai, winning_move_ai, scores)
-	print("Score is ", scores, "out of", trial*10)
-
-print("\n--- BATTLES ---")
-print("MonteCarlo(50) vs winning_move_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(MonteCarlo(50).ai, winning_move_ai, scores)
-	print("Score is ", scores, "out of", trial*10)
-
-print("\n--- BATTLES ---")
-print("MonteCarlo(50) vs nn_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(MonteCarlo(50).ai, nn.ai, scores)
-	print("Score is ", scores, "out of", trial*10)
-
-print("\n--- BATTLES ---")
-print("MonteCarlo(1000) vs nn_ai")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(MonteCarlo(1000).ai, nn.ai, scores)
-	print("Score is ", scores, "out of", trial*10)
-
-print("\n--- BATTLES ---")
-print("MonteCarlo(50) vs MonteCarlo(1000)")
-scores = np.zeros([2], dtype=np.int16)
-for trial in range(1,11):
-	for _ in range(5):
-		scores = fair_battle(MonteCarlo(50).ai, MonteCarlo(1000).ai, scores)
-	print("Score is ", scores, "out of", trial*10)
