@@ -6,6 +6,13 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
+# CHANGE LOG
+# use exponential decay for reward function
+
+train_games = 2000
+eval_games = 200
+epochs = 100
+
 
 winning_player_board = (
 	0b111000000, 0b000111000, 0b000000111,
@@ -179,7 +186,7 @@ class NN:
 				mini_board.print()
 			if mini_board.is_win(player=player) :
 				for move in range(turn):
-					learning_rate = 0.1*(move+10-turn if move%2==player else -(move+10-turn))
+					learning_rate = 0.5**(turn-move) if move%2==player else -(0.5**(turn-move))
 					index = pos_list[move].bit_length() - 1
 					logits[move][index] += learning_rate
 					if np.min(logits[move]) < 0:
@@ -192,7 +199,7 @@ class NN:
 	def train(self, sparse_boards, target_logits):
 		x = tf.one_hot(sparse_boards,depth=3)
 		y = target_logits
-		dataset = tf.data.Dataset.from_tensor_slices((x, y)).repeat(100).shuffle(1000).batch(32)
+		dataset = tf.data.Dataset.from_tensor_slices((x, y)).repeat(epochs).shuffle(1000).batch(32)
 		self.model.evaluate(x, y)
 		self.model.fit(dataset)
 		self.model.evaluate(x, y)
@@ -269,15 +276,13 @@ nn.save(name=f"saves/nn_0")
 nn_old = NN(nn)
 # nn_old.load(name=f"saves/nn_0")
 print("\nUntrained NN baseline")
-report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 50)
-report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, 50)
+report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
+report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
 
 for training_session in range(1,21):
-	print("Self play 200 games, training session", training_session)
-	sparse_boards, logits = nn.self_play(200)
+	print(f"Self play {train_games} games, training session", training_session)
+	sparse_boards, logits = nn.self_play(train_games)
 	nn.train(sparse_boards=sparse_boards, target_logits=logits)
-	nn.save(name=f"saves/nn_{training_session}")
-	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 50)
-	report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, 50)
-
-
+	# nn.save(name=f"saves/nn_{training_session}")
+	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, eval_games)
+	report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, eval_games)
