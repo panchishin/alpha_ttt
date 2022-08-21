@@ -134,12 +134,13 @@ class NN:
 			self.model = models.Sequential((
 				layers.Input(shape=[9,3], dtype=tf.float32),
 				layers.Flatten(),
-				layers.Dense(50, activation="tanh"),
-				layers.Dense(9)
+				layers.Dense(200, activation="relu"),
+				layers.Dense(50, activation="relu"),
+				layers.Dense(9, activation="softmax")
 			))
 		else:
 			self.model = models.clone_model(other.model)
-		self.model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001))
+		self.model.compile(loss="mae", optimizer="adam")
 
 	def save(self, name):
 		self.model.save(name)
@@ -157,13 +158,11 @@ class NN:
 				s, l = self.self_play()
 				sparse_boards.extend(s)
 				logits.extend(l)
-				if game%2 == 0:
+				if game%5 == 0:
 					print(".",end="", flush=True)
-				if game%100 == 0:
+				if game%500 == 0:
 					print(" -",game,"games", flush=True)
 			return np.array(sparse_boards), np.array(logits)
-
-		# append iterations of results to sparse_boards and target_logits
 
 		mini_board = MiniBoard()
 
@@ -172,18 +171,20 @@ class NN:
 			sparse_board, logit, pos = self.ai(mini_board=mini_board, player=player, report_logits=True)
 
 			sparse_boards.append(sparse_board[0].tolist())
-			logits.append(logit[0].tolist())
+			logits.append(logit.tolist())
 			pos_list.append(pos)
 
 			mini_board.move(pos=pos, player=player)
 			if verbose:
 				mini_board.print()
 			if mini_board.is_win(player=player) :
-				# adjust the logits and break
 				for move in range(turn):
-					learning_rate = 10*( move+1 if move%2==player else -(move+1) )
+					learning_rate = 0.1*(move+10-turn if move%2==player else -(move+10-turn))
 					index = pos_list[move].bit_length() - 1
 					logits[move][index] += learning_rate
+					if np.min(logits[move]) < 0:
+						logits[move] = logits[move] - np.min(logits[move])
+					logits[move] = logits[move] / np.sum(logits[move])
 				break
 
 		return sparse_boards, logits
@@ -191,9 +192,10 @@ class NN:
 	def train(self, sparse_boards, target_logits):
 		x = tf.one_hot(sparse_boards,depth=3)
 		y = target_logits
-		# dataset = tf.data.Dataset.from_tensor_slices((x, y)).repeat(100).shuffle(1000).batch(32)
-		# self.model.fit(dataset)
-		self.model.fit(x,y)
+		dataset = tf.data.Dataset.from_tensor_slices((x, y)).repeat(100).shuffle(1000).batch(32)
+		self.model.evaluate(x, y)
+		self.model.fit(dataset)
+		self.model.evaluate(x, y)
 
 	def ai(self, mini_board, player, report_logits=False):
 		# always convert board to be from player 0's point of view
@@ -203,7 +205,7 @@ class NN:
 			mini_board_pos = mini_board.pos[::-1]
 
 		sparse_board = to_sparse(mini_board_pos=mini_board_pos)
-		predict = self.model.predict(tf.one_hot(sparse_board,depth=3), verbose=0)
+		predict = self.model.predict(tf.one_hot(sparse_board,depth=3), verbose=0)[0]
 		if report_logits:
 			logits = np.array(predict)
 
@@ -211,12 +213,16 @@ class NN:
 		for index in range(9):
 			pos = 1 << index
 			if pos != avail & pos:
-				predict[0,index] = -1e38 # min float
+				predict[index] = 0
+
+		predict = predict * predict
+		predict = predict / sum(predict)
+		pos = 1 << int(np.random.choice(range(9),p=predict))
 
 		if report_logits:
-			return sparse_board, logits , 1 << int(tf.random.categorical(predict,1).numpy()[0,0])
+			return sparse_board, logits, pos
 		else:
-			return 1 << int(tf.random.categorical(predict,1).numpy()[0,0])
+			return pos
 
 
 
@@ -250,32 +256,28 @@ def fair_battle(ai_a, ai_b, scores):
 
 def report_fair_battle(ai_names, ai_funcs, trials, iterations):
 	iterations = iterations // 2
-	print("\n--- BATTLES ---")
-	print(ai_names[0], "vs", ai_names[1])
 	scores = np.zeros([2], dtype=np.int16)
 	for trial in range(1,trials+1):
 		for _ in range(iterations):
 			scores = fair_battle(ai_funcs[0], ai_funcs[1], scores)
-		print("Score is ", scores, "out of", trial*iterations*2)
+		print("Fair battle :", ai_names[0], "vs", ai_names[1], "Score is", scores, "out of", trial*iterations*2)
 
 
 nn = NN()
+nn.save(name=f"saves/nn_0")
+# nn.load(name=f"saves/nn_3")
+nn_old = NN(nn)
+# nn_old.load(name=f"saves/nn_0")
 print("\nUntrained NN baseline")
-report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 100)
-report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 1, 100)
-# report_fair_battle(["nn.ai","MonteCarlo(50).ai"], [nn.ai, MonteCarlo(50).ai], 1, 100)
+report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 50)
+report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, 50)
 
-# nn.load(name="nn")
-# print("\nLoaded NN baseline")
-# report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 100, 1)
-# report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 100, 1)
-
-for training_session in range(10):
-	print("\nSelf play 100 games")
-	sparse_boards, logits = nn.self_play(100)
+for training_session in range(1,21):
+	print("Self play 200 games, training session", training_session)
+	sparse_boards, logits = nn.self_play(200)
 	nn.train(sparse_boards=sparse_boards, target_logits=logits)
 	nn.save(name=f"saves/nn_{training_session}")
-	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 100)
-	report_fair_battle(["nn.ai","winning_move_ai"], [nn.ai, winning_move_ai], 1, 100)
-	# report_fair_battle(["nn.ai","MonteCarlo(50).ai"], [nn.ai, MonteCarlo(50).ai], 1, 100)
+	report_fair_battle(["nn.ai","random_ai"], [nn.ai, random_ai], 1, 50)
+	report_fair_battle(["nn.ai","nn_old.ai"], [nn.ai, nn_old.ai], 1, 50)
+
 
