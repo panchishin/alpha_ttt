@@ -6,7 +6,6 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from miniboard import MiniBoard
 
-epochs = 1
 
 def to_sparse(mini_board_pos):
 	"""
@@ -44,6 +43,7 @@ class FilterPolicyByPosition(tf.keras.layers.Layer):
 class NN:
 
 	def __init__(self):
+		self.q = 0.5
 		
 		board_input = layers.Input(shape=[9], dtype=tf.int32, name="board_input")
 		position_input = layers.Input(shape=[], dtype=tf.int32, name="position_input")
@@ -51,6 +51,7 @@ class NN:
 		onehot = layers.Lambda(lambda x: tf.one_hot(x,3))(board_input)
 		flatten = layers.Flatten(name="input")(onehot)
 		hidden = layers.Dense(32, activation="tanh")(flatten)
+		hidden = layers.BatchNormalization()(hidden)
 		policy = layers.Dense(9, activation="tanh", name="policy")(hidden)
 
 		position_onehot = layers.Lambda(lambda x: tf.one_hot(x,9))(position_input)
@@ -60,7 +61,7 @@ class NN:
 		self.model = tf.keras.Model(inputs=board_input, outputs=policy)
 		self.model.compile(loss="mae", optimizer="sgd")
 		self.train_model = tf.keras.Model(inputs=[board_input,position_input], outputs=[policy_single])
-		self.train_model.compile(loss="mse", optimizer="adam")
+		self.train_model.compile(loss="mae", optimizer="adam")
 
 	def save(self, name):
 		self.model.save(name)
@@ -90,7 +91,7 @@ class NN:
 		else:
 			return self.self_play_one_game()
 
-	def self_play_one_game(self, verbose=False, q=0.8):
+	def self_play_one_game(self, verbose=False):
 		mini_board = MiniBoard()
 		sparse_boards = []
 		reward_list = []
@@ -98,7 +99,7 @@ class NN:
 
 		for turn in range(9):
 			player = turn % 2
-			sparse_board, reward, index = self.ai(mini_board=mini_board, player=player)
+			sparse_board, reward, index = self.ai(mini_board=mini_board, player=player, exploration=0.5)
 			sparse_boards.append(sparse_board[0].tolist())
 			reward_list.append(reward)
 			index_list.append(index)
@@ -108,15 +109,15 @@ class NN:
 				mini_board.print()
 			if mini_board.is_win(player=player) :
 				for move in range(turn):
-					learning_rate = q**(turn-move)
+					learning_rate = self.q**(turn-move)
 					value = 1 if (move%2)==player else -1
 					reward_list[move][index_list[move]] = learning_rate * value + (1-learning_rate) * reward_list[move][index_list[move]]
 				return sparse_boards, reward_list, index_list
 
 		for move in range(9):
-			learning_rate = q**(8-move)
+			learning_rate = self.q**(8-move)
 			value = 0
-			reward_list[move][index_list[move]] = learning_rate * value + (1-learning_rate) * reward_list[move][index_list[move]]
+			reward_list[move][index_list[move]] = (1-learning_rate) * reward_list[move][index_list[move]]
 
 		return sparse_boards[:-1], reward_list[:-1], index_list[:-1]
 
@@ -127,7 +128,7 @@ class NN:
 		dataset = tf.data.Dataset.from_tensor_slices(((s,p), r)).repeat(epochs).shuffle(10000).batch(32)
 		self.train_model.fit(dataset, verbose=0)
 
-	def ai(self, mini_board, player):
+	def ai(self, mini_board, player, exploration=0.0):
 		# always convert board to be from player 0's point of view
 		if player == 0:
 			mini_board_pos = mini_board.pos
@@ -137,14 +138,30 @@ class NN:
 		sparse_board = to_sparse(mini_board_pos=mini_board_pos)
 		predict = self.model.predict(sparse_board, verbose=0)[0]
 
-		avail = ( 0b111111111 ^ ( mini_board.pos[0] | mini_board.pos[1] ) )
+		avail = mini_board.available()
+		winning_move = -1
 		for index in range(9):
 			pos = 1 << index
 			if pos != avail & pos:
 				predict[index] = -1.0001 # just a little lower than tanh can output
+			else:
+				move = MiniBoard(mini_board)
+				move.move(pos, player=0)
+				if move.is_win(0):
+					winning_move = pos.bit_length() - 1
 
-		index = np.argmax(predict)
+		if winning_move != -1:
+			index = winning_move
+		else:
+			choice = np.array(predict) + np.random.normal(scale=exploration, size=[9])
+			index = np.argmax(choice)
 		return sparse_board, predict, index
+
+	def print_first_move_expectation(self):
+		_, predict, _ = self.ai(MiniBoard(), player=0)
+		for i in range(0,9,3):
+			print(" | ".join([f"{int(x*1000):4}" for x in predict[i:i+3]]))
+
 
 
 def show_one_game(nn):
@@ -181,10 +198,7 @@ if __name__ == "__main__":
 
 	tf.keras.utils.plot_model(nn.train_model, show_shapes=True)
 
-	
-
 	for _ in range(20):
-		epochs = 10
 		sparse_boards, reward_list, pos_list = nn.self_play(1)
 		reward_list = [x[i] for x,i in zip(reward_list, pos_list)]
 		nn.train(sparse_boards, reward_list, pos_list)
