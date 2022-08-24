@@ -1,0 +1,147 @@
+Untrained NN baseline
+ 200 |  318 | -644
+ -44 | -700 |  813
+-692 |  674 | -635
+Fair battle :  12 nn.ai      vs   3 random_ai           and   5 ties out of 20 games
+Fair battle :  11 nn.ai      vs   9 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  10 nn.ai      vs  10 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 1 Training 50 simulations : 0 ......... Training complete.
+ 257 |  443 | -654
+-207 | -503 |  932
+-599 |  805 | -601
+Fair battle :  13 nn.ai      vs   5 random_ai           and   2 ties out of 20 games
+Fair battle :  11 nn.ai      vs   9 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  11 nn.ai      vs   9 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 2 Training 50 simulations : 0 ......... Training complete.
+ 418 |  592 | -558
+ -15 | -268 |  951
+-292 |  859 | -683
+Fair battle :  11 nn.ai      vs   1 random_ai           and   8 ties out of 20 games
+Fair battle :   7 nn.ai      vs  13 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  10 nn.ai      vs  10 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 3 Training 50 simulations : 0 ......... Training complete.
+ 346 |  603 | -292
+ 107 | -216 |  965
+-167 |  901 | -758
+Fair battle :  12 nn.ai      vs   5 random_ai           and   3 ties out of 20 games
+Fair battle :  11 nn.ai      vs   9 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  10 nn.ai      vs  10 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 4 Training 50 simulations : 0 ......... Training complete.
+ 502 |  492 | -150
+ 191 | -236 |  968
+ -16 |  917 | -758
+Fair battle :  11 nn.ai      vs   7 random_ai           and   2 ties out of 20 games
+Fair battle :   6 nn.ai      vs  14 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  18 nn.ai      vs   2 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 5 Training 50 simulations : 0 ......... Training complete.
+ 505 |  359 | -120
+ 422 | -314 |  976
+  33 |  935 | -720
+Fair battle :   9 nn.ai      vs   7 random_ai           and   4 ties out of 20 games
+Fair battle :   9 nn.ai      vs  11 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  15 nn.ai      vs   5 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 6 Training 50 simulations : 0 ......... Training complete.
+ 508 |  397 | -207
+ 224 |   77 |  985
+  25 |  956 | -654
+Fair battle :  12 nn.ai      vs   5 random_ai           and   3 ties out of 20 games
+Fair battle :   8 nn.ai      vs  12 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  18 nn.ai      vs   2 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 7 Training 50 simulations : 0 ......... Training complete.
+ 828 |  323 | -279
+ 384 |  622 |  990
+   3 |  964 | -515
+Fair battle :  12 nn.ai      vs   7 random_ai           and   1 ties out of 20 games
+Fair battle :  11 nn.ai      vs   9 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  18 nn.ai      vs   2 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 8 Training 50 simulations : 0 ......... Training complete.
+ 869 |  212 | -294
+ 534 |  896 |  990
+ -15 |  979 | -492
+Fair battle :  15 nn.ai      vs   3 random_ai           and   2 ties out of 20 games
+Fair battle :  10 nn.ai      vs  10 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  15 nn.ai      vs   5 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 9 Training 50 simulations : 0 ......... Training complete.
+ 838 |  619 |   55
+ 713 |  939 |  987
+ -40 |  984 | -438
+Fair battle :  10 nn.ai      vs   5 random_ai           and   5 ties out of 20 games
+Fair battle :   7 nn.ai      vs  13 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  17 nn.ai      vs   3 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 10 Training 50 simulations : 0 ......... Training complete.
+ 819 |  605 |  -40
+ 624 |  930 |  978
+ -38 |  986 | -246
+Fair battle :  18 nn.ai      vs   2 random_ai           and   0 ties out of 20 games
+Fair battle :  18 nn.ai      vs   2 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 11 Training 50 simulations : 0 ......... Training complete.
+ 767 |  572 | -111
+ 721 |  939 |  955
+ 257 |  984 | -347
+Fair battle :  16 nn.ai      vs   4 random_ai           and   0 ties out of 20 games
+Fair battle :  16 nn.ai      vs   4 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 12 Training 50 simulations : 0 ......... Training complete.
+ 662 |  372 |  -82
+ 866 |  952 |  909
+ 481 |  976 | -318
+Fair battle :  18 nn.ai      vs   1 random_ai           and   1 ties out of 20 games
+Fair battle :  14 nn.ai      vs   6 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 13 Training 50 simulations : 0 ......... Training complete.
+ 585 |  468 |  -67
+ 913 |  962 |  900
+ 672 |  963 |  -40
+Fair battle :  16 nn.ai      vs   4 random_ai           and   0 ties out of 20 games
+Fair battle :  17 nn.ai      vs   3 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 14 Training 50 simulations : 0 ......... Training complete.
+ 624 |  423 | -135
+ 907 |  954 |  933
+ 605 |  975 | -324
+Fair battle :  14 nn.ai      vs   6 random_ai           and   0 ties out of 20 games
+Fair battle :  17 nn.ai      vs   3 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 15 Training 50 simulations : 0 ......... Training complete.
+ 701 |  476 |  -93
+ 927 |  917 |  884
+ 382 |  978 | -552
+Fair battle :  15 nn.ai      vs   4 random_ai           and   1 ties out of 20 games
+Fair battle :  16 nn.ai      vs   4 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  19 nn.ai      vs   1 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 16 Training 50 simulations : 0 ......... Training complete.
+ 648 |  564 | -120
+ 936 |  952 |  848
+ 417 |  980 | -552
+Fair battle :  18 nn.ai      vs   2 random_ai           and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 17 Training 50 simulations : 0 ......... Training complete.
+ 612 |  802 |  -68
+ 958 |  933 |  912
+ 575 |  980 | -412
+Fair battle :  18 nn.ai      vs   1 random_ai           and   1 ties out of 20 games
+Fair battle :  16 nn.ai      vs   4 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 18 Training 50 simulations : 0 ......... Training complete.
+ 651 |  818 |   60
+ 972 |  939 |  897
+ 420 |  985 | -463
+Fair battle :  18 nn.ai      vs   2 random_ai           and   0 ties out of 20 games
+Fair battle :  18 nn.ai      vs   2 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  19 nn.ai      vs   1 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 19 Training 50 simulations : 0 ......... Training complete.
+ 507 |  784 |  126
+ 973 |  909 |  829
+  64 |  989 | -678
+Fair battle :  20 nn.ai      vs   0 random_ai           and   0 ties out of 20 games
+Fair battle :  19 nn.ai      vs   1 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  19 nn.ai      vs   1 MonteCarlo(250).ai  and   0 ties out of 20 games
+Round 20 Training 50 simulations : 0 ......... Training complete.
+ 363 |  610 |   -9
+ 976 |  892 |  749
+ 282 |  983 | -405
+Fair battle :  19 nn.ai      vs   0 random_ai           and   1 ties out of 20 games
+Fair battle :  17 nn.ai      vs   3 winning_move_ai     and   0 ties out of 20 games
+Fair battle :  20 nn.ai      vs   0 MonteCarlo(250).ai  and   0 ties out of 20 games
